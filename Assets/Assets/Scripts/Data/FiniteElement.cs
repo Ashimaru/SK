@@ -4,7 +4,8 @@ using System.Collections;
 public class FiniteElement
 {
 
-    Data[] data;
+    private Data[] data;
+    private float surface;
 
     public FiniteElement(Node[] nodes)
     {
@@ -14,6 +15,8 @@ public class FiniteElement
             data[i].Node = nodes[i];
             data[i].Coefficients = GenerateShapeFunctionCoefficients(nodes, i);
         }
+
+        surface = CountSurface(nodes);
     }
 
     private float[] GenerateShapeFunctionCoefficients(Node[] nodes, int number)
@@ -29,7 +32,7 @@ public class FiniteElement
         return result;
     }
 
-    private float CountSurfaceTimesTwice(Node[] nodes)
+    private float CountSurface(Node[] nodes)
     {
         float twiceA = 0;
         int a;
@@ -42,7 +45,12 @@ public class FiniteElement
             twiceA += nodes[a].Position.x * nodes[b].Position.y - nodes[a].Position.y * nodes[b].Position.x;
         }
 
-        return twiceA;
+        return twiceA / 2;
+    }
+
+    public float ShapeFuncForANodeAtPoit(Data data)
+    {
+        return (data.Coefficients[0] + data.Coefficients[1] * data.Node.Position.x + data.Coefficients[2] * data.Node.Position.y) / (2 * surface);
     }
 
     struct Data
