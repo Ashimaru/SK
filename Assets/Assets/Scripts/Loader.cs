@@ -21,14 +21,18 @@ public class Loader : MonoBehaviour
 
     void Start()
     {
-        //Node[] nodes =
-        //{
-        //    new Node(new Vector2(0,0)),
-        //    new Node(new Vector2(4,0.5f)),
-        //    new Node(new Vector2(2,5))
-        //};
+        Node[] nodes =
+        {
+            new Node(new Vector2(1,0)),
+            new Node(new Vector2(3,2)),
+            new Node(new Vector2(-1,1))
+        };
 
-        //FiniteElement fe = new FiniteElement(nodes);
+        Materiall material = new Materiall();
+
+        material.ConductCoefficient = 4.7f;
+
+        FiniteElement fe = new FiniteElement(nodes, material);
     }
 
     public void LoadExample()

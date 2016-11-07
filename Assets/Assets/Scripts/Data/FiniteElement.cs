@@ -1,13 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections;
+using MathNet.Numerics.LinearAlgebra;
 
 public class FiniteElement
 {
-    private float[,] ShapeFunctionsMatrix;
-    private float[,] B;
+
+    private Matrix<float> ShapeFunctionsMatrix;
+    private Matrix<float> B;
+    private Matrix<float> D;
     private Node[] nodes;
     private float surface;
     private Vector2 flux;
+
+    public Matrix<float> LocalStiffnessMatrix;
 
     public FiniteElement(Node[] nodes, Materiall material)
     {
@@ -19,12 +24,17 @@ public class FiniteElement
 
         B = CountB();
 
+        D = Matrix<float>.Build.DenseOfArray(new float[,] { { -material.ConductCoefficient, 0 },
+                                                            { 0, -material.ConductCoefficient} });
+
+        LocalStiffnessMatrix = GenerateStiffnessMatrix();
+
         flux = CountFlux(material);
     }
 
-    private float[,] GenerateShapeFunctionsCoefficientsMatrix()
+    private Matrix<float> GenerateShapeFunctionsCoefficientsMatrix()
     {
-        float[,] result = new float[3, 3];
+        Matrix<float> result = Matrix<float>.Build.Dense(3, 3);
         int a;
         int b;
 
@@ -57,15 +67,15 @@ public class FiniteElement
         return twiceA / 2;
     }
 
-    private float[,] CountB()
+    private Matrix<float> CountB()
     {
-        float[,] result = new float[2, 3];
+        Matrix<float> result = Matrix<float>.Build.Dense(2, 3);
 
         for (int i = 0; i < 2; i++)
         {
             for (int j = 0; j < 3; j++)
             {
-                result[i, j] = ShapeFunctionsMatrix[j, i + 1] / (2 * surface);
+                result[i, j] = ShapeFunctionsMatrix[j, i + 1] /*/ (2 * surface)*/;
             }
         }
 
@@ -86,7 +96,14 @@ public class FiniteElement
     }
 
 
+    private Matrix<float> GenerateStiffnessMatrix()
+    {
+        Matrix<float> result/* = Matrix<float>.Build.Dense(3, 3)*/;
 
+        result = (B.Transpose() * D * B) / (-4 * surface);
+
+        return result;
+    }
 
     //public float ShapeFuncForANodeAtPoit(Data data)
     //{
