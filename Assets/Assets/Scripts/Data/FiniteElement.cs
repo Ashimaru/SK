@@ -53,7 +53,7 @@ public class FiniteElement
         return (data.Coefficients[0] + data.Coefficients[1] * data.Node.Position.x + data.Coefficients[2] * data.Node.Position.y) / (2 * surface);
     }
 
-    struct Data
+    public struct Data
     {
         public Node Node { get; set; }
         public float[] Coefficients { get; set; }
