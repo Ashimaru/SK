@@ -3,36 +3,45 @@ using System.Collections;
 
 public class FiniteElement
 {
-
-    private Data[] data;
+    private float[,] ShapeFunctionsMatrix;
+    private float[,] B;
+    private Node[] nodes;
     private float surface;
+    private Vector2 flux;
 
-    public FiniteElement(Node[] nodes)
+    public FiniteElement(Node[] nodes, Materiall material)
     {
-        data = new Data[3];
-        for (int i = 0; i < data.Length; i++)
-        {
-            data[i].Node = nodes[i];
-            data[i].Coefficients = GenerateShapeFunctionCoefficients(nodes, i);
-        }
+        this.nodes = nodes;
 
-        surface = CountSurface(nodes);
+        ShapeFunctionsMatrix = GenerateShapeFunctionsCoefficientsMatrix();
+
+        surface = CountSurface();
+
+        B = CountB();
+
+        flux = CountFlux(material);
     }
 
-    private float[] GenerateShapeFunctionCoefficients(Node[] nodes, int number)
+    private float[,] GenerateShapeFunctionsCoefficientsMatrix()
     {
-        float[] result = { 0, 0, 0 };
-        int a = (number + 1) % nodes.Length;
-        int b = (number + 2) % nodes.Length;
+        float[,] result = new float[3, 3];
+        int a;
+        int b;
 
-        result[0] = nodes[a].Position.x * nodes[b].Position.y - nodes[b].Position.x * nodes[a].Position.y;
-        result[1] = nodes[a].Position.y - nodes[b].Position.y;
-        result[2] = nodes[b].Position.x - nodes[a].Position.x;
+        for (int i = 0; i < 3; i++)
+        {
+            a = (i + 1) % nodes.Length;
+            b = (i + 2) % nodes.Length;
+
+            result[i, 0] = nodes[a].Position.x * nodes[b].Position.y - nodes[b].Position.x * nodes[a].Position.y;
+            result[i, 1] = nodes[a].Position.y - nodes[b].Position.y;
+            result[i, 2] = nodes[b].Position.x - nodes[a].Position.x;
+        }
 
         return result;
     }
 
-    private float CountSurface(Node[] nodes)
+    private float CountSurface()
     {
         float twiceA = 0;
         int a;
@@ -48,15 +57,40 @@ public class FiniteElement
         return twiceA / 2;
     }
 
-    public float ShapeFuncForANodeAtPoit(Data data)
+    private float[,] CountB()
     {
-        return (data.Coefficients[0] + data.Coefficients[1] * data.Node.Position.x + data.Coefficients[2] * data.Node.Position.y) / (2 * surface);
+        float[,] result = new float[2, 3];
+
+        for (int i = 0; i < 2; i++)
+        {
+            for (int j = 0; j < 3; j++)
+            {
+                result[i, j] = ShapeFunctionsMatrix[j, i + 1] / (2 * surface);
+            }
+        }
+
+        return result;
     }
 
-    public struct Data
+    private Vector2 CountFlux(Materiall material)
     {
-        public Node Node { get; set; }
-        public float[] Coefficients { get; set; }
+        Vector2 result = new Vector2(material.ConductCoefficient, material.ConductCoefficient);
+
+        for (int i = 0; i < 3; i++)
+        {
+            result.x += B[0, i] * nodes[i].Temperature;
+            result.y += B[1, i] * nodes[i].Temperature;
+        }
+
+        return result;
     }
+
+
+
+
+    //public float ShapeFuncForANodeAtPoit(Data data)
+    //{
+    //    return (data.Coefficients[0] + data.Coefficients[1] * data.Node.Position.x + data.Coefficients[2] * data.Node.Position.y) / (2 * surface);
+    //
 
 }
