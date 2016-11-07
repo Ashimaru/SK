@@ -21,6 +21,14 @@ public class Loader : MonoBehaviour
 
     void Start()
     {
+        //Node[] nodes =
+        //{
+        //    new Node(new Vector2(0,0)),
+        //    new Node(new Vector2(4,0.5f)),
+        //    new Node(new Vector2(2,5))
+        //};
+
+        //FiniteElement fe = new FiniteElement(nodes);
     }
 
     public void LoadExample()
