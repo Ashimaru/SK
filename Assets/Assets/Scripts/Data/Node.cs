@@ -4,14 +4,18 @@ using UnityEngine;
 public class Node
 {
     public Vector2 Position;
+    public float Temperature;
 
-    public Node(Vector2 position)
+
+    public Node(Vector2 position) : this(position, 20.0f)
     {
         Position = position;
     }
 
+    public Node(Vector2 position, float temperature)
+    {
+        Position = position;
+        Temperature = temperature;
+    }
 
-    //Shape function
-    public float[] Coefficients = new float[3];
-    public float Temperature;
 }
