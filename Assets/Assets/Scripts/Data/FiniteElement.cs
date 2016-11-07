@@ -74,7 +74,7 @@ public class FiniteElement
 
     private Vector2 CountFlux(Materiall material)
     {
-        Vector2 result = new Vector2(material.ConductCoefficient, material.ConductCoefficient);
+        Vector2 result = new Vector2(-material.ConductCoefficient, -material.ConductCoefficient);
 
         for (int i = 0; i < 3; i++)
         {
