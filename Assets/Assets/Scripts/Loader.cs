@@ -21,18 +21,7 @@ public class Loader : MonoBehaviour
 
     void Start()
     {
-        Node[] nodes =
-        {
-            new Node(new Vector2(1,0)),
-            new Node(new Vector2(3,2)),
-            new Node(new Vector2(-1,1))
-        };
 
-        Materiall material = new Materiall();
-
-        material.ConductCoefficient = 4.7f;
-
-        FiniteElement fe = new FiniteElement(nodes, material);
     }
 
     public void LoadExample()

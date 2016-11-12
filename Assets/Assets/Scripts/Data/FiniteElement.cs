@@ -8,7 +8,7 @@ public class FiniteElement
     private Matrix<float> ShapeFunctionsMatrix;
     private Matrix<float> B;
     private Matrix<float> D;
-    private Node[] nodes;
+    public Node[] nodes;
     private float surface;
     private Vector2 flux;
 
@@ -17,6 +17,8 @@ public class FiniteElement
     public FiniteElement(Node[] nodes, Materiall material)
     {
         this.nodes = nodes;
+
+        SortNodes();
 
         ShapeFunctionsMatrix = GenerateShapeFunctionsCoefficientsMatrix();
 
@@ -100,9 +102,35 @@ public class FiniteElement
     {
         Matrix<float> result/* = Matrix<float>.Build.Dense(3, 3)*/;
 
+        if (surface == 0)
+        {
+            Debug.Log("Mniejsze zero");
+        }
+
         result = (B.Transpose() * D * B) / (-4 * surface);
 
         return result;
+    }
+
+
+    private void SortNodes()
+    {
+        Node temporaryNode;
+        bool flag = true;
+        while (flag)
+        {
+            flag = false;
+            for(int i = 0; i < nodes.Length - 1; i++)
+            {
+                if(nodes[i].GlobalIndex > nodes[i+1].GlobalIndex)
+                {
+                    temporaryNode = nodes[i];
+                    nodes[i] = nodes[i + 1];
+                    nodes[i + 1] = temporaryNode;
+                    flag = true;
+                }
+            }
+        }
     }
 
     //public float ShapeFuncForANodeAtPoit(Data data)

@@ -4,6 +4,7 @@ using UnityEngine;
 public class Node
 {
     public Vector2 Position;
+    public int GlobalIndex;
     public float Temperature;
 
 
@@ -18,4 +19,9 @@ public class Node
         Temperature = temperature;
     }
 
+    public Node(Vector2 position, int index)
+    {
+        Position = position;
+        GlobalIndex = index;
+    }
 }
