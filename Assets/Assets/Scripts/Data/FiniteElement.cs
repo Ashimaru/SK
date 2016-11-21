@@ -10,7 +10,6 @@ public class FiniteElement
     private Matrix<float> D;
     public Node[] nodes;
     private float surface;
-    private Vector2 flux;
 
     public Matrix<float> LocalStiffnessMatrix;
 
@@ -30,8 +29,6 @@ public class FiniteElement
                                                             { 0, -material.ConductCoefficient} });
 
         LocalStiffnessMatrix = GenerateStiffnessMatrix();
-
-        flux = CountFlux(material);
     }
 
     private Matrix<float> GenerateShapeFunctionsCoefficientsMatrix()
@@ -77,25 +74,14 @@ public class FiniteElement
         {
             for (int j = 0; j < 3; j++)
             {
-                result[i, j] = ShapeFunctionsMatrix[j, i + 1] /*/ (2 * surface)*/;
+                result[i, j] = ShapeFunctionsMatrix[j, i + 1] / (2 * surface);
             }
         }
 
         return result;
     }
 
-    private Vector2 CountFlux(Materiall material)
-    {
-        Vector2 result = new Vector2(-material.ConductCoefficient, -material.ConductCoefficient);
 
-        for (int i = 0; i < 3; i++)
-        {
-            result.x += B[0, i] * nodes[i].Temperature;
-            result.y += B[1, i] * nodes[i].Temperature;
-        }
-
-        return result;
-    }
 
 
     private Matrix<float> GenerateStiffnessMatrix()

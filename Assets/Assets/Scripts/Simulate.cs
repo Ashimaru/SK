@@ -6,8 +6,8 @@ public class Simulate : MonoBehaviour {
     public Example example;
 
 
-    public void StartSimultaion()
+    public void StartSimultaion(Loader loader)
     {
-        example.Load();
+        example.Load(loader);
     }
 }
