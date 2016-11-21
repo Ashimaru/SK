@@ -77,7 +77,7 @@ public class FiniteElement
         {
             for (int j = 0; j < 3; j++)
             {
-                result[i, j] = ShapeFunctionsMatrix[j, i + 1] /*/ (2 * surface)*/;
+                result[i, j] = ShapeFunctionsMatrix[j, i + 1] / (2 * surface);
             }
         }
 
@@ -90,8 +90,8 @@ public class FiniteElement
 
         for (int i = 0; i < 3; i++)
         {
-            result.x += B[0, i] * nodes[i].Temperature;
-            result.y += B[1, i] * nodes[i].Temperature;
+            result.x *= B[0, i] * nodes[i].Temperature;
+            result.y *= B[1, i] * nodes[i].Temperature;
         }
 
         return result;
