@@ -4,8 +4,11 @@ using System.Collections.Generic;
 [CreateAssetMenu(fileName = "newExample", menuName = "Data/Example")]
 public class Example : ScriptableObject
 {
+    const int MAXTEMP = 300;
+    const int MINTEMP = 0;
 
     public Mesh Mesh;
+    public Sprite Gradient;
     FiniteElement[] elements;
 
     public void Load()
@@ -27,6 +30,14 @@ public class Example : ScriptableObject
         Program program = new Program(Mesh.vertices.Length);
 
         program.AssembleGlobalStiffnessMatrix(elements);
+    }
+
+
+
+    private Color GetTemperatureFromValue(float temperature)
+    {
+        int val = ((int)temperature / MAXTEMP)*100;
+        return Gradient.texture.GetPixel(val, 1);
     }
 }
 
