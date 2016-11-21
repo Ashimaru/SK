@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using MathNet.Numerics.LinearAlgebra;
 
 [CreateAssetMenu(fileName = "newExample", menuName = "Data/Example")]
 public class Example : ScriptableObject
@@ -7,10 +8,14 @@ public class Example : ScriptableObject
 
     public Mesh Mesh;
     FiniteElement[] elements;
+    Matrix<float> GlobalStiffnessMatrix;
+    float flux;
+    float[] boundryConditions;
 
-    public void Load()
+    public void Load(Loader loader)
     {
         Materiall material = CreateInstance<Materiall>();
+        boundryConditions = new float[Mesh.vertexCount];
         material.ConductCoefficient = 5;
         elements = new FiniteElement[Mesh.triangles.Length / 3];
         for (int i = 0; i < elements.Length; i++)
@@ -24,16 +29,19 @@ public class Example : ScriptableObject
             elements[i] = new FiniteElement(nodes, material);
         }
 
-        Program program = new Program(Mesh.vertices.Length);
+        GlobalStiffnessMatrix = Program.Instance.AssembleGlobalStiffnessMatrix(elements, Mesh.vertices.Length);
+        flux = Program.Instance.CountFlux(material, loader.EnviromentTemperature);
 
-        program.AssembleGlobalStiffnessMatrix(elements);
+        var edges = Edge.GetEdges(Mesh.triangles);
+        var boundaries = Edge.GetBoudaries(edges);
+
+        boundryConditions = Program.Instance.BoundryConditions(flux, boundaries, Mesh.vertexCount, Mesh);
     }
 }
 
 public class Edge
 {
     public int Vertex1 { get; private set; }
-
     public int Vertex2 { get; private set; }
     public int TriangleNumber { get; private set; }
 
@@ -77,6 +85,17 @@ public class Edge
             }
         }
         return result;
+    }
+
+    public float Length(Mesh mesh)
+    {
+        float length = 0;
+        float a = mesh.vertices[Vertex1].x - mesh.vertices[Vertex2].x;
+        float b = mesh.vertices[Vertex2].y - mesh.vertices[Vertex2].y;
+
+        length = Mathf.Sqrt(a * a + b * b);
+
+        return length;
     }
 
 }
