@@ -4,7 +4,9 @@ using System.Collections.Generic;
 
 public class Tester : MonoBehaviour
 {
-
+    [Range(0, 300)]
+    public float Temperaturn = 20;
+    public Texture2D Gradient;
     public GameObject prefab;
     public Transform Position;
 
@@ -20,16 +22,16 @@ public class Tester : MonoBehaviour
 
         for (int i = 0; i < meshColors.Length; i++)
         {
-            meshColors[i] = Color.red;
+            meshColors[i] = GetTemperatureFromValue(Temperaturn);
         }
 
-        foreach (var item in boundaries)
-        {
-            meshColors[item.Vertex1] = Color.black;
-            meshColors[item.Vertex2] = Color.black;
-        }
+        //foreach (var item in boundaries)
+        //{
+        //    meshColors[item.Vertex1] = Color.black;
+        //    meshColors[item.Vertex2] = Color.black;
+        //}
 
-        ChangeVisible(ref meshColors, ref boundaries, ref positions);
+        //ChangeVisible(ref meshColors, ref boundaries, ref positions);
 
 
 
@@ -63,4 +65,9 @@ public class Tester : MonoBehaviour
         Debug.Log(detected);
     }
 
+    private Color GetTemperatureFromValue(float temperature)
+    {
+        float val = temperature / 300.0f;
+        return Gradient.GetPixel(Mathf.FloorToInt(val * Gradient.width), 1);
+    }
 }

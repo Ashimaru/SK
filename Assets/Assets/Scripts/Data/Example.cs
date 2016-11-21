@@ -9,7 +9,7 @@ public class Example : ScriptableObject
     const int MINTEMP = 0;
 
     public Mesh Mesh;
-    public Sprite Gradient;
+    public Texture2D Gradient;
     FiniteElement[] elements;
     Matrix<float> GlobalStiffnessMatrix;
     float flux;
@@ -25,9 +25,9 @@ public class Example : ScriptableObject
         {
             Node[] nodes = new Node[]
             {
-                new Node(Mesh.vertices[Mesh.triangles[3*i]], Mesh.triangles[3*i]),
-                new Node(Mesh.vertices[Mesh.triangles[3*i+1]], Mesh.triangles[3*i+1]),
-                new Node(Mesh.vertices[Mesh.triangles[3*i+2]], Mesh.triangles[3*i+2])
+                new Node(Mesh.vertices[Mesh.triangles[3*i]], Mesh.triangles[3*i], loader.ObjectTemperature),
+                new Node(Mesh.vertices[Mesh.triangles[3*i+1]], Mesh.triangles[3*i+1], loader.ObjectTemperature),
+                new Node(Mesh.vertices[Mesh.triangles[3*i+2]], Mesh.triangles[3*i+2], loader.ObjectTemperature)
             };
             elements[i] = new FiniteElement(nodes, material);
         }
@@ -39,14 +39,25 @@ public class Example : ScriptableObject
         var boundaries = Edge.GetBoudaries(edges);
 
         boundryConditions = Program.Instance.BoundryConditions(flux, boundaries, Mesh.vertexCount, Mesh);
+
+        Color[] colors = new Color[Mesh.vertices.Length];
+
+        foreach (var item in elements)
+        {
+            foreach (var node in item.nodes)
+                colors[node.GlobalIndex] = GetTemperatureFromValue(node.Temperature);
+        }
+
+        Mesh.colors = colors;
+
     }
 
 
 
     private Color GetTemperatureFromValue(float temperature)
     {
-        int val = ((int)temperature / MAXTEMP)*100;
-        return Gradient.texture.GetPixel(val, 1);
+        float val = temperature / 300.0f;
+        return Gradient.GetPixel(Mathf.FloorToInt(val * Gradient.width), 1);
     }
 }
 

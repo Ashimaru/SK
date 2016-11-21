@@ -19,9 +19,10 @@ public class Node
         Temperature = temperature;
     }
 
-    public Node(Vector2 position, int index)
+    public Node(Vector2 position, int index, float temperature)
     {
         Position = position;
         GlobalIndex = index;
+        Temperature = temperature;
     }
 }
