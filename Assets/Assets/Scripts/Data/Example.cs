@@ -11,16 +11,19 @@ public class Example : ScriptableObject
     public Mesh Mesh;
     public Texture2D Gradient;
     FiniteElement[] elements;
-    Matrix<float> GlobalStiffnessMatrix;
+    Matrix<double> GlobalStiffnessMatrix;
     float flux;
-    float[] boundryConditions;
+    Vector<double> boundryConditions;
+    Vector<double> temperatures;
 
     public void Load(Loader loader)
     {
         Materiall material = CreateInstance<Materiall>();
-        boundryConditions = new float[Mesh.vertexCount];
-        material.ConductCoefficient = 5;
+        material.ConductCoefficient = 16f;
         elements = new FiniteElement[Mesh.triangles.Length / 3];
+        var edges = Edge.GetEdges(Mesh.triangles);
+        var boundaries = Edge.GetBoudaries(edges);
+
         for (int i = 0; i < elements.Length; i++)
         {
             Node[] nodes = new Node[]
@@ -35,18 +38,20 @@ public class Example : ScriptableObject
         GlobalStiffnessMatrix = Program.Instance.AssembleGlobalStiffnessMatrix(elements, Mesh.vertices.Length);
         flux = Program.Instance.CountFlux(material, loader.EnviromentTemperature);
 
-        var edges = Edge.GetEdges(Mesh.triangles);
-        var boundaries = Edge.GetBoudaries(edges);
+        boundryConditions = Program.Instance.BoundryConditionsTemp(loader.EnviromentTemperature, loader.ObjectTemperature, boundaries, Mesh.vertexCount, Mesh);
 
-        boundryConditions = Program.Instance.BoundryConditions(flux, boundaries, Mesh.vertexCount, Mesh);
+        temperatures = GlobalStiffnessMatrix.Solve(boundryConditions);
 
         Color[] colors = new Color[Mesh.vertices.Length];
 
-        foreach (var item in elements)
-        {
-            foreach (var node in item.nodes)
-                colors[node.GlobalIndex] = GetTemperatureFromValue(node.Temperature);
-        }
+        //foreach (var item in elements)
+        //{
+        //    foreach (var node in item.nodes)
+        //        colors[node.GlobalIndex] = GetTemperatureFromValue(node.Temperature);
+        //}
+
+        for (int i = 0; i < Mesh.vertexCount; i++)
+            colors[i] = GetTemperatureFromValue((float)temperatures[i]);
 
         Mesh.colors = colors;
 

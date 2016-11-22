@@ -74,7 +74,7 @@ public class FiniteElement
         {
             for (int j = 0; j < 3; j++)
             {
-                result[i, j] = ShapeFunctionsMatrix[j, i + 1] / (2 * surface);
+                result[i, j] = ShapeFunctionsMatrix[j, i + 1];
             }
         }
 

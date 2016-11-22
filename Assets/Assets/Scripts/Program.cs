@@ -24,9 +24,9 @@ public class Program
 
     }
 
-    public Matrix<float> AssembleGlobalStiffnessMatrix(FiniteElement[] fe, int nodesCount)
+    public Matrix<double> AssembleGlobalStiffnessMatrix(FiniteElement[] fe, int nodesCount)
     {
-        Matrix<float> GlobalStiffnessMatrix = Matrix<float>.Build.Dense(nodesCount, nodesCount);
+        Matrix<double> GlobalStiffnessMatrix = Matrix<double>.Build.Dense(nodesCount, nodesCount);
 
         for (int i = 0; i < fe.Length; i++)
         {
@@ -61,8 +61,16 @@ public class Program
         return boundryConditions;
     }
 
-    public void CountingTemperatures(List<FiniteElement> fe)
+    public Vector<double> BoundryConditionsTemp(float tempEnv, float tempBody, List<Edge> boundaries, int nodesCount, Mesh mesh)
     {
+        Vector<double> boundryConditions = Vector<double>.Build.Dense(nodesCount, tempBody);
+        for (int i = 0; i < boundaries.Count; i++)
+        {
+            boundryConditions[boundaries[i].Vertex1] = tempEnv;
+            boundryConditions[boundaries[i].Vertex2] = tempEnv;
+        }
 
+        return boundryConditions;
     }
+
 }
