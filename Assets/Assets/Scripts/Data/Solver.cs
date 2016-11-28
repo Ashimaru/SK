@@ -46,7 +46,7 @@ public class Solver
         temperatures = GlobalStiffnessMatrix.LU().Solve(boundryConditions);
         var det = GlobalStiffnessMatrix.Rank();
         string str = GlobalStiffnessMatrix.LU().ToString();
-        File.WriteAllText(@"C:\Users\Mateusz\Desktop\text.txt", str);
+        //File.WriteAllText(@"C:\Users\Mateusz\Desktop\text.txt", str);
 
         Color[] colors = new Color[mesh.vertices.Length];
 
