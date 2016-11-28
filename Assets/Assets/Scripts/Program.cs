@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.LinearAlgebra.Double;
 using System;
 using System.Collections.Generic;
 
@@ -26,8 +27,7 @@ public class Program
 
     public Matrix<double> AssembleGlobalStiffnessMatrix(FiniteElement[] fe, int nodesCount)
     {
-        Matrix<double> GlobalStiffnessMatrix = Matrix<double>.Build.Dense(nodesCount, nodesCount);
-
+        Matrix<double> GlobalStiffnessMatrix = DenseMatrix.Create(nodesCount, nodesCount, 0.0);
         for (int i = 0; i < fe.Length; i++)
         {
             for (int j = 0; j < 3; j++)

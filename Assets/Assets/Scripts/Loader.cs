@@ -4,9 +4,10 @@ using System.Collections;
 
 public class Loader : MonoBehaviour
 {
-
+    public Texture2D Gradient;
     public Example[] Examples;
     public Materiall[] Materials;
+    public MeshFilter MeshFilter;
 
     public Example activeExample;
     public Materiall activeMaterial;
@@ -17,17 +18,6 @@ public class Loader : MonoBehaviour
     public Dropdown Material;
     public InputField EnviromentValue;
     public InputField ObjectValue;
-
-
-    void Start()
-    {
-
-    }
-
-    public void LoadExample()
-    {
-
-    }
 
     public void SetEnviromentTemperature()
     {
@@ -49,9 +39,15 @@ public class Loader : MonoBehaviour
         EnviromentTemperature = val;
     }
 
-    public void LoadMaterial()
+    public void LoadMaterial(int number)
     {
+        activeMaterial = Materials[number];
+    }
 
+    public void LoadExample(int number)
+    {
+        activeExample = Examples[number];
+        MeshFilter.mesh = activeExample.Mesh;
     }
 
     public void SetObjectTemperature()

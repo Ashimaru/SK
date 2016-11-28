@@ -1,17 +1,18 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.LinearAlgebra.Double;
 
 public class FiniteElement
 {
 
-    private Matrix<float> ShapeFunctionsMatrix;
-    private Matrix<float> B;
-    private Matrix<float> D;
+    private Matrix<double> ShapeFunctionsMatrix;
+    private Matrix<double> B;
+    private Matrix<double> D;
     public Node[] nodes;
-    private float surface;
+    private double surface;
 
-    public Matrix<float> LocalStiffnessMatrix;
+    public Matrix<double> LocalStiffnessMatrix;
 
     public FiniteElement(Node[] nodes, Materiall material)
     {
@@ -25,15 +26,15 @@ public class FiniteElement
 
         B = CountB();
 
-        D = Matrix<float>.Build.DenseOfArray(new float[,] { { -material.ConductCoefficient, 0 },
+        D = Matrix<double>.Build.DenseOfArray(new double[,] { { -material.ConductCoefficient, 0 },
                                                             { 0, -material.ConductCoefficient} });
 
         LocalStiffnessMatrix = GenerateStiffnessMatrix();
     }
 
-    private Matrix<float> GenerateShapeFunctionsCoefficientsMatrix()
+    private Matrix<double> GenerateShapeFunctionsCoefficientsMatrix()
     {
-        Matrix<float> result = Matrix<float>.Build.Dense(3, 3);
+        Matrix<double> result = Matrix<double>.Build.Dense(3, 3);
         int a;
         int b;
 
@@ -46,29 +47,30 @@ public class FiniteElement
             result[i, 1] = nodes[a].Position.y - nodes[b].Position.y;
             result[i, 2] = nodes[b].Position.x - nodes[a].Position.x;
         }
-
         return result;
     }
 
-    private float CountSurface()
+    private double CountSurface()
     {
         float twiceA = 0;
         int a;
         int b;
 
-        for (int i = 0; i < nodes.Length; i++)
-        {
-            a = i % nodes.Length;
-            b = (i + 1) % nodes.Length;
-            twiceA += nodes[a].Position.x * nodes[b].Position.y - nodes[a].Position.y * nodes[b].Position.x;
-        }
+        //for (int i = 0; i < nodes.Length; i++)
+        //{
+        //    a = i % nodes.Length;
+        //    b = (i + 1) % nodes.Length;
+        //    twiceA += nodes[a].Position.x * nodes[b].Position.y - nodes[a].Position.y * nodes[b].Position.x;
+        //}
 
-        return twiceA / 2;
+        twiceA = (nodes[1].Position.x - nodes[0].Position.x) * (nodes[2].Position.y - nodes[0].Position.y) - (nodes[2].Position.x - nodes[0].Position.x) * (nodes[1].Position.y - nodes[0].Position.y);
+
+        return twiceA;
     }
 
-    private Matrix<float> CountB()
+    private Matrix<double> CountB()
     {
-        Matrix<float> result = Matrix<float>.Build.Dense(2, 3);
+        Matrix<double> result = Matrix<double>.Build.Dense(2, 3);
 
         for (int i = 0; i < 2; i++)
         {
@@ -84,9 +86,9 @@ public class FiniteElement
 
 
 
-    private Matrix<float> GenerateStiffnessMatrix()
+    private Matrix<double> GenerateStiffnessMatrix()
     {
-        Matrix<float> result/* = Matrix<float>.Build.Dense(3, 3)*/;
+        Matrix<double> result/* = Matrix<float>.Build.Dense(3, 3)*/;
 
         if (surface == 0)
         {
@@ -94,7 +96,6 @@ public class FiniteElement
         }
 
         result = (B.Transpose() * D * B) / (-4 * surface);
-
         return result;
     }
 
@@ -106,9 +107,9 @@ public class FiniteElement
         while (flag)
         {
             flag = false;
-            for(int i = 0; i < nodes.Length - 1; i++)
+            for (int i = 0; i < nodes.Length - 1; i++)
             {
-                if(nodes[i].GlobalIndex > nodes[i+1].GlobalIndex)
+                if (nodes[i].GlobalIndex > nodes[i + 1].GlobalIndex)
                 {
                     temporaryNode = nodes[i];
                     nodes[i] = nodes[i + 1];
