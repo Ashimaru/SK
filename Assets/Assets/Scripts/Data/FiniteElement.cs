@@ -53,8 +53,8 @@ public class FiniteElement
     private double CountSurface()
     {
         float twiceA = 0;
-        int a;
-        int b;
+        //int a;
+        //int b;
 
         //for (int i = 0; i < nodes.Length; i++)
         //{
@@ -64,6 +64,8 @@ public class FiniteElement
         //}
 
         twiceA = (nodes[1].Position.x - nodes[0].Position.x) * (nodes[2].Position.y - nodes[0].Position.y) - (nodes[2].Position.x - nodes[0].Position.x) * (nodes[1].Position.y - nodes[0].Position.y);
+
+        twiceA /= 2;
 
         return twiceA;
     }
