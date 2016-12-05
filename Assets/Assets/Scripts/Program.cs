@@ -49,10 +49,10 @@ public class Program
         return result * temperature;
     }
 
-    public float[] BoundryConditions(float flux, List<Edge> boundaries, int nodesCount, Mesh mesh)
+    public Vector<double> BoundryConditions(float flux, List<Edge> boundaries, int nodesCount, Mesh mesh)
     {
-        float[] boundryConditions = new float[nodesCount];
-        for(int i = 0; i < boundaries.Count; i++)
+        Vector<double> boundryConditions = Vector<double>.Build.Dense(nodesCount, 0);
+        for (int i = 0; i < boundaries.Count; i++)
         {
             boundryConditions[boundaries[i].Vertex1] += (flux * boundaries[i].Length(mesh)) / 2;
             boundryConditions[boundaries[i].Vertex2] += (flux * boundaries[i].Length(mesh)) / 2;
@@ -71,6 +71,19 @@ public class Program
         }
 
         return boundryConditions;
+    }
+
+    public Vector<double> CountSolution(Matrix<double> GlobalStiffnessMatrix, Vector<double> boundryConditions)
+    {
+        var U = GlobalStiffnessMatrix.UpperTriangle();
+        var L = GlobalStiffnessMatrix.LowerTriangle();
+        var u = GlobalStiffnessMatrix - L;
+        var D = U - u;
+
+        var y = U.Transpose().Inverse() * boundryConditions;
+        var solution = U.Inverse() * D.Inverse() * y;
+
+        return solution;
     }
 
 }
