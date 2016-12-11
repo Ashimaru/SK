@@ -61,29 +61,97 @@ public class Program
         return boundryConditions;
     }
 
-    public Vector<double> BoundryConditionsTemp(float tempEnv, float tempBody, List<Edge> boundaries, int nodesCount, Mesh mesh)
+    public Vector<double> BoundryConditionsTemp(float tempBody, List<Edge> boundaries, int nodesCount, Mesh mesh)
     {
         Vector<double> boundryConditions = Vector<double>.Build.Dense(nodesCount, tempBody);
         for (int i = 0; i < boundaries.Count; i++)
         {
-            boundryConditions[boundaries[i].Vertex1] = tempEnv;
-            boundryConditions[boundaries[i].Vertex2] = tempEnv;
+            boundryConditions[boundaries[i].Vertex1] = 0;
+            boundryConditions[boundaries[i].Vertex2] = 0;
         }
 
         return boundryConditions;
     }
 
-    public Vector<double> CountSolution(Matrix<double> GlobalStiffnessMatrix, Vector<double> boundryConditions)
+    public Vector<double> CountSolution(Matrix<double> GlobalStiffnessMatrix, Vector<double> boundaryConditions)
     {
         var U = GlobalStiffnessMatrix.UpperTriangle();
         var L = GlobalStiffnessMatrix.LowerTriangle();
         var u = GlobalStiffnessMatrix - L;
         var D = U - u;
 
-        var y = U.Transpose().Inverse() * boundryConditions;
+        var y = U.Transpose().Inverse() * boundaryConditions;
         var solution = U.Inverse() * D.Inverse() * y;
 
         return solution;
+    }
+
+    public void SimplifyEquation(ref Matrix<double> matrix, Vector<double> vector, List<int> boundaryNodes, float envTemp)
+    {
+        for (int i = 0; i < matrix.RowCount; i++)
+        {
+            if (boundaryNodes.Contains(i))
+            {
+                for (int j = 0; j < vector.Count; j++)
+                {
+                    if (j != i)
+                    {
+                        vector[j] += matrix[j, i] * envTemp;
+                    }
+                }
+                ClearMatrixRowColumn(ref matrix, i);
+            }
+        }
+
+        for (int i = 0; i < boundaryNodes.Count; i++)
+        {
+            vector[boundaryNodes[i]] = envTemp;
+        }
+    }
+
+    public void ClearMatrixRowColumn(ref Matrix<double> matrix, int j)
+    {
+        for (int i = 0; i < matrix.ColumnCount; i++)
+        {
+            if (i != j)
+            {
+                matrix[j, i] = 0;
+            }
+            else
+            {
+                matrix[j, i] = 1;
+            }
+        }
+
+        for (int i = 0; i < matrix.ColumnCount; i++)
+        {
+            if (i != j)
+            {
+                matrix[i, j] = 0;
+            }
+            else
+            {
+                matrix[i, j] = 1;
+            }
+        }
+    }
+
+    public Matrix<double> MultiplyMatrixByVector(Matrix<double> matrix, Vector<double> vector)
+    {
+        Matrix<double> result = Matrix<double>.Build.Dense(matrix.RowCount, matrix.ColumnCount);
+
+        for (int i = 0; i < matrix.ColumnCount; i++)
+        {
+            for (int j = 0; j < matrix.RowCount; j++)
+            {
+                if (vector[i] != 0)
+                    result[j, i] = matrix[j, i] * vector[i];
+                else
+                    result[j, i] = matrix[j, i];
+            }
+        }
+
+        return result;
     }
 
 }

@@ -48,6 +48,21 @@ public class Edge
         return result;
     }
 
+    public static List<int> GetBoundaryNodesIndexes(List<Edge> boundaryEdges)
+    {
+        List<int> result = new List<int>();
+
+        for (int i = 0; i < boundaryEdges.Count; i++)
+        {
+            if (!result.Contains(boundaryEdges[i].Vertex1))
+                result.Add(boundaryEdges[i].Vertex1);
+            if (!result.Contains(boundaryEdges[i].Vertex2))
+                result.Add(boundaryEdges[i].Vertex2);
+        }
+
+        return result;
+    }
+
     public float Length(Mesh mesh)
     {
         float length = 0;

@@ -10,7 +10,7 @@ public class Solver
     FiniteElement[] elements;
     Matrix<double> GlobalStiffnessMatrix;
     float flux;
-    Vector<double> boundryConditions;
+    Vector<double> rightSide;
     Vector<double> temperatures;
 
     public void Solve(Loader loader)
@@ -20,6 +20,7 @@ public class Solver
         elements = new FiniteElement[mesh.triangles.Length / 3];
         var edges = Edge.GetEdges(mesh.triangles);
         var boundaries = Edge.GetBoudaries(edges);
+        var boundaryNodes = Edge.GetBoundaryNodesIndexes(boundaries);
 
         for (int i = 0; i < elements.Length; i++)
         {
@@ -36,9 +37,27 @@ public class Solver
 
         GlobalStiffnessMatrix = Program.Instance.AssembleGlobalStiffnessMatrix(elements, mesh.vertices.Length);
 
-        boundryConditions = Program.Instance.BoundryConditionsTemp(loader.EnviromentTemperature, loader.ObjectTemperature, boundaries, mesh.vertexCount, mesh);
+        rightSide = Program.Instance.BoundryConditionsTemp(loader.ObjectTemperature, boundaries, mesh.vertexCount, mesh);
 
-        temperatures = Program.Instance.CountSolution(GlobalStiffnessMatrix, boundryConditions);
+        string str = GlobalStiffnessMatrix.ToMatrixString(16,16);
+
+        File.WriteAllText(@"D:\matrix.txt", str);
+
+        str = rightSide.ToVectorString();
+
+        File.WriteAllText(@"D:\vector.txt", str);
+
+        Program.Instance.SimplifyEquation(ref GlobalStiffnessMatrix, rightSide, boundaryNodes, loader.EnviromentTemperature);
+
+        str = GlobalStiffnessMatrix.ToMatrixString(16, 16);
+
+        File.WriteAllText(@"D:\matrix2.txt", str);
+
+        str = rightSide.ToVectorString();
+
+        File.WriteAllText(@"D:\vector2.txt", str);
+
+        temperatures = GlobalStiffnessMatrix.Solve(rightSide);
 
         Color[] colors = new Color[mesh.vertices.Length];
 
