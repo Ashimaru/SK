@@ -85,7 +85,7 @@ public class Solver
 
         File.WriteAllText(@"D:\vector.txt", str);
 
-        var rightSide = Program.Instance.SimplifyEquation(ref GlobalStiffnessMatrix, temps, boundaryNodes);
+        var rightSide = Program.Instance.SimplifyEquation(ref GlobalStiffnessMatrix, temps, boundaryNodes, material);
 
         str = GlobalStiffnessMatrix.ToMatrixString(mesh.vertexCount, mesh.vertexCount);
 

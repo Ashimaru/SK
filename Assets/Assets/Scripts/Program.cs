@@ -81,15 +81,7 @@ public class Program
         Vector<double> boundryConditions = Vector<double>.Build.Dense(mesh.vertexCount, secondBoundaryTemp);
         for (int i = 0; i < boundaryNodes.Count; i++)
         {
-            if( i > boundaryNodes.Count / 2)
-            {
-                boundryConditions[boundaryNodes[i]] = firstBoundaryTemp;
-            }
-            else
-            {
-                boundryConditions[boundaryNodes[i]] = secondBoundaryTemp;
-            }
-
+            boundryConditions[boundaryNodes[i]] = firstBoundaryTemp;
         }
 
         return boundryConditions;
@@ -108,7 +100,7 @@ public class Program
         return solution;
     }
 
-    public Vector<double> SimplifyEquation(ref Matrix<double> matrix, Vector<double> temperatures, List<int> boundaryNodes)
+    public Vector<double> SimplifyEquation(ref Matrix<double> matrix, Vector<double> temperatures, List<int> boundaryNodes, Materiall material)
     {
         Vector<double> vector = Vector<double>.Build.Dense(temperatures.Count, 0);
 

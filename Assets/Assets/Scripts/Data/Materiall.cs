@@ -7,4 +7,5 @@ public class Materiall : ScriptableObject
 {
     public float ConductCoefficientX = 0;
     public float ConductCoefficientY = 0;
+    public float Density = 0;
 }
