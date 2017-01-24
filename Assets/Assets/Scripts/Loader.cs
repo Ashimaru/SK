@@ -56,7 +56,7 @@ public class Loader : MonoBehaviour
         try
         {
             float.TryParse(ObjectValue.text, out val);
-            if (val > 35.0f || val < 0.0f)
+            if (val > 300.0f || val < 0.0f)
             {
                 val = 0.0f;
                 ObjectValue.text = "0.0";

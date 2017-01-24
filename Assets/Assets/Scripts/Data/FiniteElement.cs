@@ -11,6 +11,7 @@ public class FiniteElement
     private Matrix<double> D;
     public Node[] nodes;
     private double surface;
+    private double thickness = 1.3;
 
     public Matrix<double> LocalStiffnessMatrix;
 
@@ -26,8 +27,8 @@ public class FiniteElement
 
         B = CountB();
 
-        D = Matrix<double>.Build.DenseOfArray(new double[,] { { -material.ConductCoefficient, 0 },
-                                                            { 0, -material.ConductCoefficient} });
+        D = Matrix<double>.Build.DenseOfArray(new double[,] { { -material.ConductCoefficientX, 0 },
+                                                            { 0, -material.ConductCoefficientY} });
 
         LocalStiffnessMatrix = GenerateStiffnessMatrix();
     }
@@ -88,7 +89,12 @@ public class FiniteElement
             Debug.Log("Mniejsze zero");
         }
 
-        result = (B.Transpose() * D * B) / (-4 * surface);
+        var BT = B.Transpose();
+        var BT_times_D = BT * D;
+        var BT_times_D_times_B = BT_times_D * B;
+
+
+        result = thickness * (B.Transpose() * D * B) / (-4 * surface);
         return result;
     }
 

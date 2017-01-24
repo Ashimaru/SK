@@ -4,6 +4,7 @@ using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 public class Program
 {
@@ -38,13 +39,15 @@ public class Program
                         fe[i].LocalStiffnessMatrix[j, k];
                 }
             }
+            string s = GlobalStiffnessMatrix.ToMatrixString(nodesCount, nodesCount);
+            File.WriteAllText(@"D:\GlobalStiffnessMatrix" + i + ".txt", s);
         }
         return GlobalStiffnessMatrix;
     }
 
     public float CountFlux(Materiall material, float temperature)
     {
-        float result = -material.ConductCoefficient;
+        float result = -material.ConductCoefficientX;
 
         return result * temperature;
     }
@@ -61,13 +64,32 @@ public class Program
         return boundryConditions;
     }
 
-    public Vector<double> BoundryConditionsTemp(float tempBody, List<Edge> boundaries, int nodesCount, Mesh mesh)
+    public Vector<double> BoundryConditionsTemp(float envTemp, List<Edge> boundaries, int nodesCount, Mesh mesh)
     {
-        Vector<double> boundryConditions = Vector<double>.Build.Dense(nodesCount, tempBody);
+        Vector<double> boundryConditions = Vector<double>.Build.Dense(nodesCount, 0);
         for (int i = 0; i < boundaries.Count; i++)
         {
-            boundryConditions[boundaries[i].Vertex1] = 0;
-            boundryConditions[boundaries[i].Vertex2] = 0;
+            boundryConditions[boundaries[i].Vertex1] = envTemp;
+            boundryConditions[boundaries[i].Vertex2] = envTemp;
+        }
+
+        return boundryConditions;
+    }
+
+    public Vector<double> GetBoundaryTemps(float firstBoundaryTemp, float secondBoundaryTemp, List<int> boundaryNodes, Mesh mesh)
+    {
+        Vector<double> boundryConditions = Vector<double>.Build.Dense(mesh.vertexCount, secondBoundaryTemp);
+        for (int i = 0; i < boundaryNodes.Count; i++)
+        {
+            if( i > boundaryNodes.Count / 2)
+            {
+                boundryConditions[boundaryNodes[i]] = firstBoundaryTemp;
+            }
+            else
+            {
+                boundryConditions[boundaryNodes[i]] = secondBoundaryTemp;
+            }
+
         }
 
         return boundryConditions;
@@ -86,8 +108,10 @@ public class Program
         return solution;
     }
 
-    public void SimplifyEquation(ref Matrix<double> matrix, Vector<double> vector, List<int> boundaryNodes, float envTemp)
+    public Vector<double> SimplifyEquation(ref Matrix<double> matrix, Vector<double> temperatures, List<int> boundaryNodes)
     {
+        Vector<double> vector = Vector<double>.Build.Dense(temperatures.Count, 0);
+
         for (int i = 0; i < matrix.RowCount; i++)
         {
             if (boundaryNodes.Contains(i))
@@ -96,7 +120,7 @@ public class Program
                 {
                     if (j != i)
                     {
-                        vector[j] += matrix[j, i] * envTemp;
+                        vector[j] += -matrix[j, i] * temperatures[i];
                     }
                 }
                 ClearMatrixRowColumn(ref matrix, i);
@@ -105,8 +129,10 @@ public class Program
 
         for (int i = 0; i < boundaryNodes.Count; i++)
         {
-            vector[boundaryNodes[i]] = envTemp;
+            vector[boundaryNodes[i]] = temperatures[boundaryNodes[i]];
         }
+
+        return vector;
     }
 
     public void ClearMatrixRowColumn(ref Matrix<double> matrix, int j)

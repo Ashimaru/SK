@@ -5,5 +5,6 @@ using MathNet.Numerics;
 [CreateAssetMenu(fileName = "NewMaterial", menuName = "Data/Material")]
 public class Materiall : ScriptableObject
 {
-    public float ConductCoefficient = 0;
+    public float ConductCoefficientX = 0;
+    public float ConductCoefficientY = 0;
 }
